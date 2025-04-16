@@ -1,0 +1,582 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modal Verbs Quiz</title>
+    <style>
+        :root {
+            --correct: #2e7d32;
+            --incorrect: #c62828;
+            --primary: #283593;
+            --secondary: #455a64;
+            --background: #f5f7fa;
+            --card-bg: #ffffff;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--background);
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+            margin: 0;
+        }
+        
+        .quiz-container {
+            background: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+            max-width: 700px;
+            margin: 0 auto;
+            padding: 30px;
+        }
+        
+        h1 {
+            color: var(--primary);
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .question-container {
+            margin-bottom: 25px;
+        }
+        
+        .question {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+        
+        .options {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+            margin-bottom: 25px;
+        }
+        
+        .option {
+            padding: 12px 15px;
+            background: #f8f9fa;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .option:hover {
+            background: #edf2f7;
+        }
+        
+        .option.selected {
+            border-color: var(--primary);
+            background: #ebf4ff;
+        }
+        
+        .option.correct {
+            background: #e8f5e9;
+            border-color: var(--correct);
+            color: var(--correct);
+            font-size: 1.3rem;
+            font-weight: bold;
+            padding: 15px;
+        }
+        
+        .option.incorrect {
+            background: #ffebee;
+            border-color: var(--incorrect);
+            color: var(--incorrect);
+            font-size: 1.3rem;
+            font-weight: bold;
+            padding: 15px;
+        }
+        
+        .feedback {
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+            display: none;
+            animation: fadeIn 0.5s;
+        }
+        
+        .correct-feedback {
+            background: #e8f5e9;
+            border-left: 5px solid var(--correct);
+        }
+        
+        .incorrect-feedback {
+            background: #ffebee;
+            border-left: 5px solid var(--incorrect);
+        }
+        
+        .feedback-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .correct-title {
+            color: var(--correct);
+        }
+        
+        .incorrect-title {
+            color: var(--incorrect);
+        }
+        
+        .feedback-icon {
+            margin-right: 10px;
+            font-size: 1.5rem;
+        }
+        
+        .explanation {
+            margin-bottom: 15px;
+            line-height: 1.7;
+        }
+        
+        .examples {
+            background: rgba(255, 255, 255, 0.7);
+            padding: 15px;
+            border-radius: 8px;
+        }
+        
+        .example {
+            margin-bottom: 8px;
+            position: relative;
+            padding-left: 25px;
+        }
+        
+        .example:before {
+            content: "•";
+            position: absolute;
+            left: 10px;
+            font-weight: bold;
+            color: var(--primary);
+        }
+        
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 25px;
+        }
+        
+        button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .next-btn {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .next-btn:hover {
+            background: #1a237e;
+        }
+        
+        .next-btn:disabled {
+            background: #b0bec5;
+            cursor: not-allowed;
+        }
+        
+        .results-container {
+            text-align: center;
+            display: none;
+        }
+        
+        .results-title {
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            color: var(--primary);
+        }
+        
+        .score {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin: 20px 0;
+        }
+        
+        .correct-score {
+            color: var(--correct);
+        }
+        
+        .total-score {
+            color: var(--primary);
+        }
+        
+        .percentage {
+            font-size: 1.8rem;
+            margin-bottom: 30px;
+            color: var(--secondary);
+        }
+        
+        .restart-btn {
+            background: var(--secondary);
+            color: white;
+            padding: 15px 30px;
+            font-size: 1.1rem;
+        }
+        
+        .restart-btn:hover {
+            background: #37474f;
+        }
+        
+        .modal-verb {
+            font-weight: bold;
+            color: var(--primary);
+            background: #e3f2fd;
+            padding: 2px 5px;
+            border-radius: 4px;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <div class="quiz-container">
+        <h1>📝 Modal Verbs Quiz</h1>
+        
+        <div id="quiz-content">
+            <!-- Questions will be inserted here by JavaScript -->
+        </div>
+        
+        <div class="results-container" id="results-container">
+            <h2 class="results-title">Quiz Completed!</h2>
+            <div class="score">
+                <span id="correct-answers" class="correct-score">0</span>
+                <span class="total-score"> / <span id="total-questions">12</span></span>
+            </div>
+            <div class="percentage" id="percentage">0%</div>
+            <button class="restart-btn" onclick="restartQuiz()">↻ Restart Quiz</button>
+        </div>
+    </div>
+
+    <script>
+        // Quiz questions data
+        const questions = [
+            {
+                question: "Which modal verb is most appropriate for asking formal permission?",
+                options: [
+                    "Can I borrow your pen?",
+                    "May I borrow your pen?",
+                    "Must I borrow your pen?",
+                    "Should I borrow your pen?"
+                ],
+                correctAnswer: 1,
+                explanation: "The modal verb <span class='modal-verb'>may</span> is used for formal permission requests, while <span class='modal-verb'>can</span> is more informal. <span class='modal-verb'>Must</span> expresses obligation, and <span class='modal-verb'>should</span> gives advice.",
+                examples: [
+                    "<span class='modal-verb'>May</span> I leave the meeting early? (formal)",
+                    "<span class='modal-verb'>Can</span> I use your phone? (informal)"
+                ]
+            },
+            {
+                question: "Which sentence shows strong external obligation?",
+                options: [
+                    "You should visit your grandparents.",
+                    "You must wear a helmet when riding a motorcycle.",
+                    "You might want to try the seafood here.",
+                    "You could take the later train."
+                ],
+                correctAnswer: 1,
+                explanation: "<span class='modal-verb'>Must</span> expresses strong obligation, often from laws or rules. <span class='modal-verb'>Should</span> suggests advice, while <span class='modal-verb'>might</span> and <span class='modal-verb'>could</span> express possibility.",
+                examples: [
+                    "Passengers <span class='modal-verb'>must</span> fasten their seatbelts. (law)",
+                    "You <span class='modal-verb'>should</span> drink more water. (advice)"
+                ]
+            },
+            {
+                question: "Complete this sentence about past ability: 'When I was young, I ____ swim across the lake.'",
+                options: [
+                    "can",
+                    "could",
+                    "must",
+                    "should"
+                ],
+                correctAnswer: 1,
+                explanation: "<span class='modal-verb'>Could</span> is the past tense form of <span class='modal-verb'>can</span> for general abilities. For specific past achievements, we use 'was/were able to'.",
+                examples: [
+                    "She <span class='modal-verb'>could</span> speak three languages as a child.",
+                    "Yesterday, I <span class='modal-verb'>was able to</span> solve the puzzle. (specific achievement)"
+                ]
+            },
+            {
+                question: "Which modal verb shows logical certainty?",
+                options: [
+                    "They may arrive around noon.",
+                    "They must be at work by now.",
+                    "They should call us soon.",
+                    "They might bring dessert."
+                ],
+                correctAnswer: 1,
+                explanation: "<span class='modal-verb'>Must</span> can express near certainty when making logical deductions based on evidence. The other modals express possibility or advice.",
+                examples: [
+                    "You've been traveling all day - you <span class='modal-verb'>must</span> be exhausted!",
+                    "The lights are off - they <span class='modal-verb'>must</span> be sleeping."
+                ]
+            },
+            {
+                question: "Which option shows strong advice with moral duty?",
+                options: [
+                    "You can try the new restaurant.",
+                    "You ought to help those in need.",
+                    "You might enjoy the museum.",
+                    "You mustn't park here."
+                ],
+                correctAnswer: 1,
+                explanation: "<span class='modal-verb'>Ought to</span> suggests strong advice with a moral dimension, stronger than <span class='modal-verb'>should</span>. <span class='modal-verb'>Mustn't</span> shows prohibition.",
+                examples: [
+                    "You <span class='modal-verb'>ought to</span> respect your elders. (moral advice)",
+                    "We <span class='modal-verb'>ought to</span> protect the environment. (social duty)"
+                ]
+            },
+            {
+                question: "Which modal verb expresses possibility?",
+                options: [
+                    "shall",
+                    "must",
+                    "might",
+                    "would"
+                ],
+                correctAnswer: 2,
+                explanation: "<span class='modal-verb'>Might</span>, <span class='modal-verb'>may</span>, and <span class='modal-verb'>could</span> all express possibility. <span class='modal-verb'>Must</span> shows certainty, while <span class='modal-verb'>shall</span> and <span class='modal-verb'>would</span> have different uses.",
+                examples: [
+                    "It <span class='modal-verb'>might</span> rain tomorrow. (possibility)",
+                    "She <span class='modal-verb'>may</span> join us later."
+                ]
+            },
+            {
+                question: "Complete this criticism: 'You ____ have told me you were coming!'",
+                options: [
+                    "must",
+                    "could",
+                    "should",
+                    "would"
+                ],
+                correctAnswer: 2,
+                explanation: "<span class='modal-verb'>Should have</span> + past participle expresses regret or criticism about past actions that didn't happen.",
+                examples: [
+                    "You <span class='modal-verb'>should have</span> studied harder for the exam.",
+                    "I <span class='modal-verb'>should have</span> called you yesterday."
+                ]
+            },
+            {
+                question: "Which sentence shows prohibition?",
+                options: [
+                    "You don't have to attend the meeting.",
+                    "You mustn't use phones during takeoff.",
+                    "You shouldn't eat too much sugar.",
+                    "You might not like the spicy food."
+                ],
+                correctAnswer: 1,
+                explanation: "<span class='modal-verb'>Mustn't</span> shows that something is prohibited or against the rules. <span class='modal-verb'>Don't have to</span> means lack of obligation, while <span class='modal-verb'>shouldn't</span> is advice against something.",
+                examples: [
+                    "Visitors <span class='modal-verb'>mustn't</span> feed the animals. (zoo rule)",
+                    "Students <span class='modal-verb'>mustn't</span> cheat on exams."
+                ]
+            },
+            {
+                question: "Which modal verb is used for polite requests?",
+                options: [
+                    "will",
+                    "could",
+                    "must",
+                    "shall"
+                ],
+                correctAnswer: 1,
+                explanation: "<span class='modal-verb'>Could</span> is often used for polite requests, along with <span class='modal-verb'>would</span>. <span class='modal-verb'>Will</span> and <span class='modal-verb'>shall</span> are more direct.",
+                examples: [
+                    "<span class='modal-verb'>Could</span> you please pass the salt?",
+                    "<span class='modal-verb'>Would</span> you mind closing the window?"
+                ]
+            },
+            {
+                question: "Which sentence expresses a future possibility?",
+                options: [
+                    "I can swim very well.",
+                    "I may travel to Japan next year.",
+                    "I must finish this report today.",
+                    "I should exercise more often."
+                ],
+                correctAnswer: 1,
+                explanation: "<span class='modal-verb'>May</span> expresses possibility about future events. <span class='modal-verb'>Can</span> shows ability, <span class='modal-verb'>must</span> shows obligation, and <span class='modal-verb'>should</span> gives advice.",
+                examples: [
+                    "We <span class='modal-verb'>might</span> go to the beach this weekend.",
+                    "She <span class='modal-verb'>may</span> not attend the party."
+                ]
+            },
+            {
+                question: "Complete this sentence: 'You ____ be tired after your long flight.'",
+                options: [
+                    "can",
+                    "must",
+                    "should",
+                    "might"
+                ],
+                correctAnswer: 1,
+                explanation: "<span class='modal-verb'>Must</span> is used here to express a logical conclusion (deduction). The speaker is almost certain based on the evidence (the long flight).",
+                examples: [
+                    "You <span class='modal-verb'>must</span> be hungry after not eating all day.",
+                    "She <span class='modal-verb'>must</span> know the answer - she's the expert."
+                ]
+            },
+            {
+                question: "Which modal verb is used for suggestions?",
+                options: [
+                    "could",
+                    "must",
+                    "will",
+                    "might"
+                ],
+                correctAnswer: 0,
+                explanation: "<span class='modal-verb'>Could</span> is often used to make suggestions, along with <span class='modal-verb'>should</span>. <span class='modal-verb'>Must</span> shows obligation, <span class='modal-verb'>will</span> shows future intention, and <span class='modal-verb'>might</span> shows possibility.",
+                examples: [
+                    "You <span class='modal-verb'>could</span> try calling again later.",
+                    "We <span class='modal-verb'>could</span> go to the movies tonight."
+                ]
+            }
+        ];
+
+        // Quiz state variables
+        let currentQuestion = 0;
+        let score = 0;
+        let userAnswers = new Array(questions.length).fill(null);
+
+        // DOM elements
+        const quizContent = document.getElementById('quiz-content');
+        const resultsContainer = document.getElementById('results-container');
+        const correctAnswersSpan = document.getElementById('correct-answers');
+        const totalQuestionsSpan = document.getElementById('total-questions');
+        const percentageSpan = document.getElementById('percentage');
+
+        // Initialize the quiz
+        function initQuiz() {
+            currentQuestion = 0;
+            score = 0;
+            userAnswers.fill(null);
+            resultsContainer.style.display = 'none';
+            quizContent.style.display = 'block';
+            loadQuestion();
+        }
+
+        // Load the current question
+        function loadQuestion() {
+            if (currentQuestion >= questions.length) {
+                showResults();
+                return;
+            }
+
+            const question = questions[currentQuestion];
+
+            let optionsHtml = '';
+            question.options.forEach((option, index) => {
+                optionsHtml += `
+                    <div class="option" onclick="selectOption(this, ${index})">
+                        ${option}
+                    </div>
+                `;
+            });
+
+            quizContent.innerHTML = `
+                <div class="question-container">
+                    <div class="question">${currentQuestion + 1}. ${question.question}</div>
+                    <div class="options">${optionsHtml}</div>
+                    <div id="feedback-container"></div>
+                    <div class="navigation">
+                        <button class="next-btn" id="next-btn" disabled onclick="nextQuestion()">Next Question →</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Select an option
+        function selectOption(element, optionIndex) {
+            const options = document.querySelectorAll('.option');
+            options.forEach(opt => opt.classList.remove('selected'));
+            element.classList.add('selected');
+            
+            document.getElementById('next-btn').disabled = false;
+            userAnswers[currentQuestion] = optionIndex;
+        }
+
+        // Show feedback for the selected answer
+        function showFeedback() {
+            const question = questions[currentQuestion];
+            const userAnswer = userAnswers[currentQuestion];
+            const isCorrect = userAnswer === question.correctAnswer;
+            const feedbackContainer = document.getElementById('feedback-container');
+            
+            if (isCorrect) {
+                score++;
+            }
+
+            // Highlight options
+            const options = document.querySelectorAll('.option');
+            options.forEach((opt, index) => {
+                if (index === question.correctAnswer) {
+                    opt.classList.add('correct');
+                } else if (index === userAnswer && !isCorrect) {
+                    opt.classList.add('incorrect');
+                }
+            });
+
+            // Show feedback
+            feedbackContainer.innerHTML = `
+                <div class="feedback ${isCorrect ? 'correct-feedback' : 'incorrect-feedback'}">
+                    <div class="feedback-title ${isCorrect ? 'correct-title' : 'incorrect-title'}">
+                        <span class="feedback-icon">${isCorrect ? '✓' : '✗'}</span>
+                        ${isCorrect ? 'Correct!' : 'Incorrect!'}
+                    </div>
+                    <div class="explanation">${question.explanation}</div>
+                    <div class="examples">
+                        <strong>Examples:</strong>
+                        ${question.examples.map(example => `
+                            <div class="example">${example}</div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+            
+            feedbackContainer.style.display = 'block';
+        }
+
+        // Move to the next question
+        function nextQuestion() {
+            showFeedback();
+            currentQuestion++;
+            
+            if (currentQuestion < questions.length) {
+                setTimeout(loadQuestion, 800);
+            } else {
+                setTimeout(showResults, 800);
+            }
+        }
+
+        // Show the final results
+        function showResults() {
+            quizContent.style.display = 'none';
+            resultsContainer.style.display = 'block';
+            
+            const percentage = Math.round((score / questions.length) * 100);
+            
+            correctAnswersSpan.textContent = score;
+            percentageSpan.textContent = `${percentage}%`;
+        }
+
+        // Restart the quiz
+        function restartQuiz() {
+            initQuiz();
+        }
+
+        // Start the quiz when the page loads
+        window.onload = initQuiz;
+    </script>
+</body>
+</html>
